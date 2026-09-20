@@ -40,6 +40,8 @@
               nodejs_26
               pnpm_11
 
+              valkey
+
               oxlint
               tsgolint
               oxfmt

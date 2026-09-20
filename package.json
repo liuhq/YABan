@@ -3,14 +3,20 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "dev": "pnpm run dev:web",
+    "dev:web": "react-router dev",
+    "predev": "pnpm run valkey:start",
+    "postdev": "printf '\\nValkey is still running at 127.0.0.1:6379.\\nStop it with: pnpm run valkey:stop\\n'",
+    "valkey:start": "valkey-cli -h 127.0.0.1 -p 6379 ping >/dev/null 2>&1 || valkey-server --bind 127.0.0.1 --port 6379 --save \"\" --appendonly no --daemonize yes --pidfile /tmp/yaban-valkey.pid --logfile /tmp/yaban-valkey.log",
+    "valkey:stop": "valkey-cli -h 127.0.0.1 -p 6379 shutdown nosave",
     "build": "react-router build",
-    "dev": "react-router dev",
     "start": "react-router-serve ./build/server/index.js",
     "typecheck": "react-router typegen && tsc"
   },
   "dependencies": {
     "@react-router/node": "^8.4.0",
     "@react-router/serve": "^8.4.0",
+    "@valkey/valkey-glide": "^2.5.2",
     "isbot": "^5.1.36",
     "react": "^19.2.8",
     "react-dom": "^19.2.8",
