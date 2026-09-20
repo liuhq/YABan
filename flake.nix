@@ -46,6 +46,7 @@
 
               typescript-language-server
               tailwindcss-language-server
+              vscode-langservers-extracted
 
               self.formatter.${system}
             ];
