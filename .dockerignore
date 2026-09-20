@@ -1,0 +1,8 @@
+.envrc
+.direnv
+flake.nix
+flake.lock
+.react-router
+build
+node_modules
+README.md
