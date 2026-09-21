@@ -48,6 +48,12 @@ const namespacedKay = (key: string): string => {
   return `${prefix}${key}`
 }
 
+const checkTTLSeconds = (ttlSeconds: number) => {
+  if (!Number.isInteger(ttlSeconds) || ttlSeconds <= 0) {
+    throw new Error("Valkey TTL must be a positive integer")
+  }
+}
+
 export async function valkeyGet<T>(key: string): Promise<T | null> {
   const client = await getValkey()
   const value = await client.get(namespacedKay(key), { decoder: Decoder.String })
@@ -60,13 +66,12 @@ export async function valkeyGet<T>(key: string): Promise<T | null> {
 }
 
 export async function valkeySet(key: string, value: unknown, ttlSeconds: number): Promise<void> {
-  if (!Number.isInteger(ttlSeconds) || ttlSeconds === 0) {
-    throw new Error("Valkey TTL must be a positive integer")
-  }
+  checkTTLSeconds(ttlSeconds)
 
   const client = await getValkey()
+  const serialized = JSON.stringify(value)
 
-  await client.set(namespacedKay(key), JSON.stringify(value), {
+  await client.set(namespacedKay(key), serialized, {
     decoder: Decoder.String,
     expiry: {
       type: TimeUnit.Seconds,
@@ -82,7 +87,43 @@ export async function valkeyDel(key: string): Promise<void> {
 }
 
 export async function valkeyRefreshTTL(key: string, ttlSeconds: number): Promise<void> {
+  checkTTLSeconds(ttlSeconds)
+
   const client = await getValkey()
 
   await client.expire(namespacedKay(key), ttlSeconds)
+}
+
+export async function valkeyAcquireLock(
+  key: string,
+  owner: string,
+  ttlSeconds: number,
+): Promise<boolean> {
+  checkTTLSeconds(ttlSeconds)
+
+  const client = await getValkey()
+
+  const isSet = await client.set(namespacedKay(key), owner, {
+    conditionalSet: "onlyIfDoesNotExist",
+    decoder: Decoder.String,
+    expiry: {
+      type: TimeUnit.Seconds,
+      count: ttlSeconds,
+    },
+  })
+
+  if (isSet === "OK") {
+    return true
+  }
+
+  return false
+}
+
+/**
+ * Requires Valkey >= 9.0
+ */
+export async function valkeyReleaseLock(key: string, owner: string): Promise<void> {
+  const client = await getValkey()
+
+  await client.customCommand(["DELIFEQ", namespacedKay(key), owner])
 }
