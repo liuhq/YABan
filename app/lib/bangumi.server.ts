@@ -35,7 +35,7 @@ export class BangumiOAuthError extends Error {
     readonly code: string,
     message: string,
   ) {
-    super(`${status}::${code} - ${message}`)
+    super(message)
   }
 }
 
