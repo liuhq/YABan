@@ -11,7 +11,11 @@
     "valkey:stop": "valkey-cli -h 127.0.0.1 -p 6379 shutdown nosave",
     "build": "react-router build",
     "start": "react-router-serve ./build/server/index.js",
-    "typecheck": "react-router typegen && tsc"
+    "typecheck": "react-router typegen && tsc",
+    "format": "oxfmt --write .",
+    "format:check": "oxfmt --check .",
+    "lint": "oxlint .",
+    "lint:fix": "oxlint --fix ."
   },
   "dependencies": {
     "@react-router/node": "^8.4.0",
