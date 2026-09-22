@@ -138,10 +138,11 @@ export function createBangumiAuthorizationURL(state: string): string {
   return url.href
 }
 
-export async function requestToken(grant: Record<string, string>): Promise<BangumiTokenResponse> {
+const requestToken = async (grant: Record<string, string>): Promise<BangumiTokenResponse> => {
   const config = readConfig()
   const url = new URL("access_token", OAUTH_BASE_URL)
   const headers = new Headers({
+    Accept: "application/json",
     "Content-Type": "application/x-www-form-urlencoded",
     "User-Agent": config.userAgent,
   })
